@@ -1,0 +1,19 @@
+.survey-question {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+}
+
+.survey-text-input,
+.survey-dropdown {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+.survey-checkbox,
+.survey-radio {
+    display: block;
+    margin: 10px 0;
+}

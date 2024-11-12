@@ -1,0 +1,46 @@
+.survey-question {
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: #f9f9f9;
+
+    &:hover .question-header .remove-question {
+        opacity: 1;
+    }
+}
+
+.question-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.answer {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+
+        .remove-answer {
+            opacity: 1;
+        }
+    }
+}
+
+.remove-question,
+.remove-answer {
+    opacity: 0;
+    border: none;
+    padding: 5px 5px;
+    cursor: pointer;
+    border-radius: 50%;
+    background-color: transparent;
+    transition: all 0.2s ease;
+
+    &:hover,
+    &:focus {
+        background-color: buttonface;
+    }
+}
