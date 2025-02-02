@@ -6,6 +6,7 @@ class SurveyGenerator
     {
         add_action('init', [$this, 'register_survey_post_type']);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_frontend_scripts']);
+        add_action('wp_ajax_save_user_progress', [$this, 'handle_save_user_progress']);
 
         add_action('wp_ajax_record_click', [$this, 'record_click']);
         add_action('wp_ajax_nopriv_record_click', [$this, 'record_click']);
@@ -37,21 +38,49 @@ class SurveyGenerator
         }
 
     }
+    public function save_user_progress($user_id, $survey_id, $progress_data) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'survey_user_progress'; // Create a new table for user progress
+
+        // Check if the user progress already exists
+        $existing_progress = $wpdb->get_var($wpdb->prepare("SELECT progress FROM $table_name WHERE user_id = %s AND survey_id = %d", $user_id, $survey_id));
+
+        // Serialize the progress data
+        $serialized_data = serialize($progress_data);
+
+        if ($existing_progress) {
+            // Update existing progress
+            $data = $wpdb->update($table_name, ['progress' => $serialized_data], ['user_id' => $user_id, 'survey_id' => $survey_id]);
+        } else {
+            // Insert new progress
+            $data = $wpdb->insert($table_name, ['user_id' => $user_id, 'survey_id' => $survey_id, 'progress' => $serialized_data]);
+        }
+
+        return $data;
+    }
+
+    public function handle_save_user_progress() {
+        $user_id = sanitize_text_field($_POST['user_id']);
+        $survey_id = intval($_POST['survey_id']);
+        $progress_data = $_POST['progress_data']; // This should be an array
+
+        $data = $this->save_user_progress($user_id, $survey_id, $progress_data);
+        wp_send_json_success();
+    }
 
     public function record_click()
     {
         $survey_id = intval($_POST['survey_id']);
-        $question_id = intval($_POST['question_id']);
         $answer_text = sanitize_text_field($_POST['answer_text']);
         $user_ip = $_SERVER['REMOTE_ADDR']; // Zbieranie IP użytkownika
         $user_agent = $_SERVER['HTTP_USER_AGENT']; // Zbieranie User-Agent
         $user_id = sanitize_text_field($_POST['user_id']); // Odbieranie identyfikatora użytkownika
 
+        $this->save_user_progress($user_id, $survey_id, $answer_text );
 
         // Zapisz dane do bazy danych
         $click_data = [
             'survey_id' => $survey_id,
-            'question_id' => $question_id,
             'answer_text' => $answer_text,
             'user_ip' => $user_ip,
             'user_id' => $user_id, // Zapisz identyfikator użytkownika
@@ -60,7 +89,7 @@ class SurveyGenerator
         ];
 
         global $wpdb;
-        $results = $wpdb->get_results($wpdb->prepare("SELECT * FROM wp_survey_clicks WHERE survey_id = %s AND question_id = %s", $survey_id, $question_id));
+        $results = $wpdb->get_results($wpdb->prepare("SELECT * FROM wp_survey_clicks WHERE survey_id = %s", $survey_id));
         if (!$results) {
             $wpdb->insert('wp_survey_clicks', $click_data); // Upewnij się, że tabela istnieje
         } else {

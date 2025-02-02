@@ -175,7 +175,7 @@ class SurveyAdminPage
         $chartLabels = [];
         echo '<table style="width: 100%;">';
 //        echo '<tr><th>ID Pytania</th><th>Odpowiedź</th><th>IP Użytkownika</th><th>User Agent</th><th>Czas</th><th>user id</th></tr>';
-        echo '<tr><th>ID Pytania</th><th>Odpowiedź</th><th>IP Użytkownika</th><th>Czas</th><th>user id</th></tr>';
+        echo '<tr><th>ID Pytania</th><th>Odpowiedź</th><th>IP Użytkownika</th><th>User Agent</th><th>Czas</th><th>user id</th></tr>';
 
         foreach ($questions as $index => $question) {
             // Pobierz kliknięcia dla danego pytania

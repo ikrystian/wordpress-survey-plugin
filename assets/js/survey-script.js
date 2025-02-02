@@ -124,7 +124,7 @@ jQuery(document).ready(function($) {
                 </div>
             `;
         }
-
+        progress = {id: "progress"}
         function collectSurveyData() {
             const surveyData = [];
 
@@ -157,15 +157,13 @@ jQuery(document).ready(function($) {
 
     // Sekcja Frontend
     if ($('.survey-container').length) {
-        let currentQuestionIndex = localStorage.getItem('currentQuestionIndex') || $('.survey-question').first().data('question-index'); // Odczytanie indeksu z localStorage
+        let currentQuestionIndex = 0; // Odczytanie indeksu z localStorage
         const $questions = $('.survey-question');
         const $surveyContainer = $('.survey-container');
-        console.log();
         showNextQuestion(parseInt(currentQuestionIndex) + 1)
-        // Pokaż pierwsze pytanie
         $questions.find(currentQuestionIndex).addClass('active');
-        // Obsługa odpowiedzi
         $('.survey-answer').on('click', function() {
+
             const action = $(this).data('action');
             const actionValue = $(this).data('action-value');
 
@@ -185,6 +183,7 @@ jQuery(document).ready(function($) {
         function showNextQuestion(nextQuestionId) {
             $questions.removeClass('active');
             $(`#question-${nextQuestionId}`).addClass('active');
+
         }
 
         function showMessage(message) {
@@ -192,6 +191,7 @@ jQuery(document).ready(function($) {
         }
     }
 });
+
 
 function createAnswerHTML() {
     return `

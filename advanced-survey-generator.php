@@ -23,6 +23,7 @@ class AdvancedSurveyGenerator {
 new AdvancedSurveyGenerator();
 
 register_activation_hook(__FILE__, 'create_survey_clicks_table');
+register_activation_hook(__FILE__, 'create_user_progress_table');
 
 function create_survey_clicks_table() {
     global $wpdb;
@@ -46,3 +47,21 @@ function create_survey_clicks_table() {
     dbDelta($sql);
 }
 
+
+function create_user_progress_table() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'survey_user_progress';
+
+    $charset_collate = $wpdb->get_charset_collate();
+
+    $sql = "CREATE TABLE $table_name (
+        id mediumint(9) NOT NULL AUTO_INCREMENT,
+        user_id varchar(255) NOT NULL,
+        survey_id mediumint(9) NOT NULL,
+        progress text NOT NULL,
+        PRIMARY KEY  (id)
+    ) $charset_collate;";
+
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    dbDelta($sql);
+}
