@@ -10,9 +10,6 @@ class SurveyAdminPage
         add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']);
         add_action('wp_ajax_save_survey', [$this, 'save_survey']);
         add_action('wp_ajax_delete_survey', [$this, 'delete_survey']);
-
-        register_activation_hook(__FILE__, 'create_survey_clicks_table');
-
     }
 
     public function add_survey_menu()
@@ -181,10 +178,10 @@ class SurveyAdminPage
 
         foreach ($questions as $index => $question) {
             // Pobierz kliknięcia dla danego pytania
-            $clicks = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE survey_id = %d AND question_id = %d", $survey_id, $index));
+            $clicks = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE survey_id = %d", $survey_id));
+            print_r($clicks);
 
             foreach ($clicks as $click) {
-                print_r($click);
                 echo '<tr>';
                 echo '<td>' . esc_html($index) . '</td>';
                 echo '<td>' . esc_html($click->answer_text) . '</td>';
@@ -200,7 +197,7 @@ class SurveyAdminPage
 
         foreach ($questions as $index => $question) {
             // Pobierz kliknięcia dla danego pytania
-            $clicks = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE survey_id = %d AND question_id = %d", $survey_id, $index));
+            $clicks = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE survey_id = %d", $survey_id, $index));
 
             // Zlicz odpowiedzi
             $answerCounts = [];
@@ -252,27 +249,6 @@ class SurveyAdminPage
         }
 
         return $datasets;
-    }
-
-
-    function create_survey_clicks_table() {
-        global $wpdb;
-        $table_name = $wpdb->prefix . 'survey_clicks';
-
-        $charset_collate = $wpdb->get_charset_collate();
-
-        $sql = "CREATE TABLE $table_name (
-        id mediumint(9) NOT NULL AUTO_INCREMENT,
-        survey_id mediumint(9) NOT NULL,
-        question_id mediumint(9) NOT NULL,
-        answer_text text NOT NULL,
-        user_id varchar(255) NOT NULL,
-        timestamp datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
-        PRIMARY KEY  (id)
-    ) $charset_collate;";
-
-        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-        dbDelta($sql);
     }
 
 

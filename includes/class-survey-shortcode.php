@@ -9,12 +9,7 @@ class SurveyShortcode {
         $survey = get_post($survey_id);
         $questions = get_post_meta($survey_id, 'survey_questions', true);
 
-        if (!isset($_COOKIE['user_id'])) {
-            $user_id = uniqid('user_', true); // Generowanie unikalnego identyfikatora
-            setcookie('user_id', $user_id, time() + (86400 * 30), "/"); // Ciasteczko ważne przez 30 dni
-        } else {
-            $user_id = $_COOKIE['user_id'];
-        }
+        $user_id = $_COOKIE['user_id'];
 
 
 
@@ -43,11 +38,16 @@ class SurveyShortcode {
         </div>
         <script>
             jQuery(document).ready(function($) {
+
+                var userId = '<?php echo esc_js($user_id); ?>'; // Przekazanie identyfikatora użytkownika
+                console.log(userId);
+
                 $('.survey-answer').on('click', function() {
                     var questionId = $(this).data('question-id');
                     var answerText = $(this).text();
                     var surveyId = <?php echo $survey_id; ?>;
                     var userId = '<?php echo esc_js($user_id); ?>'; // Przekazanie identyfikatora użytkownika
+                    console.log(userId);
                     // Wysyłanie danych do serwera
                     $.post('<?php echo admin_url('admin-ajax.php'); ?>', {
                         action: 'record_click',
@@ -55,7 +55,7 @@ class SurveyShortcode {
                         question_id: questionId,
                         answer_text: answerText,
                         user_id: userId
-                    });
+                    }, (e) => console.log(e));
                 });
             });
         </script>

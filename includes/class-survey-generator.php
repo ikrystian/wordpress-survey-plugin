@@ -12,7 +12,6 @@ class SurveyGenerator {
                 'methods' => 'GET',
                 'callback' => 'get_surveys',
             ));
-        register_activation_hook(__FILE__, 'create_survey_clicks_table');
 
 
             if (!isset($_COOKIE['user_id'])) {
@@ -42,7 +41,7 @@ class SurveyGenerator {
         $answer_text = sanitize_text_field($_POST['answer_text']);
         $user_ip = $_SERVER['REMOTE_ADDR']; // Zbieranie IP użytkownika
         $user_agent = $_SERVER['HTTP_USER_AGENT']; // Zbieranie User-Agent
-        $user_id = sanitize_text_field($_POST['user_id']); // Odbieranie identyfikatora użytkownika
+        $user_id =sanitize_text_field($_POST['user_id'] ); // Odbieranie identyfikatora użytkownika
 
 
         // Zapisz dane do bazy danych
@@ -51,15 +50,17 @@ class SurveyGenerator {
             'question_id' => $question_id,
             'answer_text' => $answer_text,
             'user_ip' => $user_ip,
-            'user_agent' => $user_agent,
             'user_id' => $user_id, // Zapisz identyfikator użytkownika
+            'user_agent' => $user_agent,
             'timestamp' => current_time('mysql'),
         ];
 
         global $wpdb;
         $wpdb->insert('wp_survey_clicks', $click_data); // Upewnij się, że tabela istnieje
 
-        wp_send_json_success();
+        wp_send_json_success([
+            'data' => $click_data
+        ]);
     }
 
 
@@ -78,27 +79,6 @@ class SurveyGenerator {
         register_block_type( __DIR__ . '../blocks/survey/build' );
 
     }
-
-    public function create_survey_clicks_table() {
-        global $wpdb;
-        $table_name = $wpdb->prefix . 'survey_clicks';
-
-        $charset_collate = $wpdb->get_charset_collate();
-
-        $sql = "CREATE TABLE $table_name (
-        id mediumint(9) NOT NULL AUTO_INCREMENT,
-        survey_id mediumint(9) NOT NULL,
-        question_id mediumint(9) NOT NULL,
-        answer_text text NOT NULL,
-        user_id varchar(255) NOT NULL,
-        timestamp datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
-        PRIMARY KEY  (id)
-    ) $charset_collate;";
-
-        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-        dbDelta($sql);
-    }
-
 
 
     public function enqueue_frontend_scripts() {
