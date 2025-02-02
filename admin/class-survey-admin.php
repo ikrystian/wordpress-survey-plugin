@@ -27,6 +27,16 @@ class SurveyAdminPage {
             [$this, 'add_survey_page'],
             'dashicons-clipboard'
         );
+
+        add_submenu_page(
+            'survey-generator',
+            'Statystyki Ankiet',
+            'Statystyki Ankiet',
+            'manage_options',
+            'survey-statistics',
+            [$this, 'display_survey_statistics'],
+            'dashicons-chart-bar'
+        );
     }
 
     public function survey_list_page() {
@@ -97,4 +107,31 @@ class SurveyAdminPage {
             wp_send_json_error('Nie udało się usunąć ankiety');
         }
     }
+
+
+
+    public function display_survey_statistics() {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'survey_clicks';
+
+        $results = $wpdb->get_results("SELECT * FROM $table_name");
+
+        // Wyświetlanie wyników w formie tabeli
+        echo '<h1>Statystyki Ankiet</h1>';
+        echo '<table>';
+        echo '<tr><th>ID Ankiety</th><th>ID Pytania</th><th>Odpowiedź</th><th>IP Użytkownika</th><th>User Agent</th><th>Czas</th></tr>';
+        foreach ($results as $row) {
+            echo '<tr>';
+            echo '<td>' . esc_html($row->survey_id) . '</td>';
+            echo '<td>' . esc_html($row->question_id) . '</td>';
+            echo '<td>' . esc_html($row->answer_text) . '</td>';
+            echo '<td>' . esc_html($row->user_ip) . '</td>';
+            echo '<td>' . esc_html($row->user_agent) . '</td>';
+            echo '<td>' . esc_html($row->timestamp) . '</td>';
+            echo '</tr>';
+        }
+        echo '</table>';
+    }
+
+
 }

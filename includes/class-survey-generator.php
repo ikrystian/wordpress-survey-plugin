@@ -4,6 +4,9 @@ class SurveyGenerator {
         add_action('init', [$this, 'register_survey_post_type']);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_frontend_scripts']);
 
+        add_action('wp_ajax_record_click', [$this, 'record_click']);
+        add_action('wp_ajax_nopriv_record_click', [$this, 'record_click']);
+
         add_action('rest_api_init', function () {
             register_rest_route('my-plugin/v1', '/surveys', array(
                 'methods' => 'GET',
@@ -24,7 +27,28 @@ class SurveyGenerator {
     }
 
 
+    public function record_click() {
+        $survey_id = intval($_POST['survey_id']);
+        $question_id = intval($_POST['question_id']);
+        $answer_text = sanitize_text_field($_POST['answer_text']);
+        $user_ip = $_SERVER['REMOTE_ADDR']; // Zbieranie IP użytkownika
+        $user_agent = $_SERVER['HTTP_USER_AGENT']; // Zbieranie User-Agent
 
+        // Zapisz dane do bazy danych
+        $click_data = [
+            'survey_id' => $survey_id,
+            'question_id' => $question_id,
+            'answer_text' => $answer_text,
+            'user_ip' => $user_ip,
+            'user_agent' => $user_agent,
+            'timestamp' => current_time('mysql'),
+        ];
+
+        global $wpdb;
+        $wpdb->insert('wp_survey_clicks', $click_data); // Upewnij się, że tabela istnieje
+
+        wp_send_json_success();
+    }
 
 
     public function register_survey_post_type() {
