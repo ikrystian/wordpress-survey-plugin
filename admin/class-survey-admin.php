@@ -163,6 +163,8 @@ class SurveyAdminPage
 
     private function display_survey_details($survey_id) {
         global $wpdb;
+
+        // Pobierz posty użytkowników dla danej ankiety
         $user_progress = $wpdb->get_results($wpdb->prepare(
             "SELECT user_id, progress FROM {$wpdb->prefix}survey_user_progress WHERE survey_id = %d",
             $survey_id
@@ -172,27 +174,60 @@ class SurveyAdminPage
             echo '<h2>Statystyki Ankiety</h2>';
             echo '<table class="wp-list-table widefat fixed striped">';
             echo '<thead>
-                <tr>
-                    <th>ID Użytkownika</th>
-                    <th>Odpowiedzi</th>
-                </tr>
-              </thead>
-              <tbody>';
+            <tr>
+                <th>ID Użytkownika</th>
+                <th>Odpowiedzi</th>
+                <th>Czas Odpowiedzi</th>
+            </tr>
+          </thead>
+          <tbody>';
+
+            $answer_counts = []; // Tablica do zliczania odpowiedzi
+            $total_time = 0; // Zmienna do zliczania czasu odpowiedzi
+            $response_count = count($user_progress); // Liczba odpowiedzi
 
             foreach ($user_progress as $progress) {
                 $responses = unserialize($progress->progress);
+                $user_id = esc_html($progress->user_id);
+                $user_answers = [];
+
                 echo '<tr>';
-                echo '<td>' . esc_html($progress->user_id) . '</td>';
+                echo '<td>' . $user_id . '</td>';
                 echo '<td>';
-                // Display each response
                 foreach ($responses['results'] as $response) {
                     echo 'Pytanie ' . esc_html($response['questionId']) . ': ' . esc_html($response['answerText']) . '<br>';
+                    $user_answers[] = $response['answerText']; // Zbieranie odpowiedzi użytkownika
                 }
                 echo '</td>';
+
+                // Zbieranie czasu odpowiedzi (przykładowo, można dodać czas w progress)
+                $time_taken = isset($responses['time_taken']) ? $responses['time_taken'] : 0; // Czas odpowiedzi
+                $total_time += $time_taken; // Zliczanie całkowitego czasu
+                echo '<td>' . esc_html($time_taken) . ' sekundy</td>';
+
+                // Zliczanie odpowiedzi
+                foreach ($user_answers as $answer) {
+                    if (!isset($answer_counts[$answer])) {
+                        $answer_counts[$answer] = 0;
+                    }
+                    $answer_counts[$answer]++;
+                }
+
                 echo '</tr>';
             }
 
             echo '</tbody></table>';
+
+            // Wyświetlanie statystyk zbiorczych
+            echo '<h3>Statystyki Zbiorcze</h3>';
+            echo '<p>Średni czas odpowiedzi: ' . round($total_time / $response_count, 2) . ' sekundy</p>';
+            echo '<h4>Najczęściej Wybierane Odpowiedzi:</h4>';
+            echo '<ul>';
+            arsort($answer_counts); // Sortowanie odpowiedzi według liczby
+            foreach ($answer_counts as $answer => $count) {
+                echo '<li>' . esc_html($answer) . ': ' . $count . ' razy</li>';
+            }
+            echo '</ul>';
         } else {
             echo '<p>Brak danych statystycznych dla tej ankiety.</p>';
         }
