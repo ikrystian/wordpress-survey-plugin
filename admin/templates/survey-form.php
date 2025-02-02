@@ -64,6 +64,7 @@ $survey_questions = $survey_id ? get_post_meta($survey_id, 'survey_questions', t
                                                     >
                                                         Przekieruj
                                                     </option>
+
                                                     <option
                                                             value="message"
                                                         <?php selected($answer['action'], 'message'); ?>
@@ -71,6 +72,9 @@ $survey_questions = $survey_id ? get_post_meta($survey_id, 'survey_questions', t
                                                         Pokaż komunikat
                                                     </option>
                                                 </select>
+
+
+
                                                 <input
                                                         type="text"
                                                         name="action_value"
