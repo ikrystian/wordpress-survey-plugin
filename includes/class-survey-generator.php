@@ -77,7 +77,7 @@ class SurveyGenerator
         $user_agent = $_SERVER['HTTP_USER_AGENT']; // Zbieranie User-Agent
         $user_id = sanitize_text_field($_POST['user_id']); // Odbieranie identyfikatora użytkownika
 
-        $this->save_user_progress($user_id, $survey_id, $answer_text, );
+        $this->save_user_progress($user_id, $survey_id, $answer_text );
 
     }
 

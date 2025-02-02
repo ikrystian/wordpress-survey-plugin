@@ -13,7 +13,7 @@ jQuery(document).ready(function($) {
         })
 
         $('#questions-container').on('click', '.remove-question', function() {
-            $(this).closest('.survey-question').remove();
+            $(this).closest('.surveyS-question').remove();
         });
 
         $('#questions-container').on('click', '.add-answer', function() {

@@ -195,7 +195,7 @@ class SurveyAdminPage
                 echo '<td>' . $user_id . '</td>';
                 echo '<td>';
                 foreach ($responses['results'] as $response) {
-                    echo 'Pytanie ' . esc_html($response['questionId']) . ': ' . esc_html($response['answerText']) . '<br>';
+                    echo 'Pytanie<strong>' . esc_html($response['question']) . '</strong><br>' . esc_html($response['answerText']) . '<br><br>';
                     $user_answers[] = $response['answerText']; // Zbieranie odpowiedzi użytkownika
                 }
                 echo '</td>';

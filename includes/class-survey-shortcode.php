@@ -64,10 +64,12 @@ class SurveyShortcode
                         } else {
                             questionId = $(this).data('question-id');
                         }
+                        var question = $(this).parent().find('h3').text();
+                        console.log(question);
                         var answerText = $(this).text();
                         var surveyId = <?php echo $survey_id; ?>;
                         var userId = '<?php echo esc_js($user_id); ?>'; // Przekazanie identyfikatora użytkownika
-                        progress.results.push({questionId: questionId - 1, answerText: answerText})
+                        progress.results.push({question: question, answerText: answerText})
                         if ($(this).parent().data('last')) {
                             $.post('<?php echo admin_url('admin-ajax.php'); ?>', {
                                 action: 'save_user_progress',
