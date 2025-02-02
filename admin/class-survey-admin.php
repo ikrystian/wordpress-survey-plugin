@@ -119,6 +119,8 @@ class SurveyAdminPage
 
 
     public function display_survey_statistics() {
+        echo '<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>';
+
         global $wpdb;
         $surveys = $wpdb->get_results("SELECT ID, post_title FROM {$wpdb->prefix}posts WHERE post_type = 'survey' AND post_status = 'publish'");
 
@@ -144,24 +146,65 @@ class SurveyAdminPage
         $questions = get_post_meta($survey_id, 'survey_questions', true);
 
         echo '<h2>Szczegóły Ankiety: ' . esc_html(get_the_title($survey_id)) . '</h2>';
-        echo '<table>';
-        echo '<tr><th>ID Pytania</th><th>Odpowiedź</th><th>IP Użytkownika</th><th>User Agent</th><th>Czas</th></tr>';
+
+        // Przygotowanie danych do wykresu
+        $chartData = [];
+        $chartLabels = [];
 
         foreach ($questions as $index => $question) {
             // Pobierz kliknięcia dla danego pytania
             $clicks = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE survey_id = %d AND question_id = %d", $survey_id, $index));
 
+            // Zlicz odpowiedzi
+            $answerCounts = [];
             foreach ($clicks as $click) {
-                echo '<tr>';
-                echo '<td>' . esc_html($index) . '</td>';
-                echo '<td>' . esc_html($click->answer_text) . '</td>';
-                echo '<td>' . esc_html($click->user_ip) . '</td>';
-                echo '<td>' . esc_html($click->user_agent) . '</td>';
-                echo '<td>' . esc_html($click->timestamp) . '</td>';
-                echo '</tr>';
+                if (!isset($answerCounts[$click->answer_text])) {
+                    $answerCounts[$click->answer_text] = 0;
+                }
+                $answerCounts[$click->answer_text]++;
             }
+
+            // Dodaj dane do wykresu
+            $chartLabels[] = esc_html($question['question']);
+            $chartData[] = array_values($answerCounts);
         }
-        echo '</table>';
+
+        // Wyświetlenie wykresu
+        echo '<canvas id="surveyChart" width="400" height="200"></canvas>';
+        echo '<script>
+        var ctx = document.getElementById("surveyChart").getContext("2d");
+        var chart = new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: ' . json_encode($chartLabels) . ',
+                datasets: ' . json_encode($this->prepareChartDatasets($chartData)) . '
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>';
+    }
+
+    private function prepareChartDatasets($chartData) {
+        $datasets = [];
+        $colors = ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)', 'rgba(75, 192, 192, 0.2)'];
+
+        foreach ($chartData as $index => $data) {
+            $datasets[] = [
+                'label' => 'Pytanie ' . ($index + 1),
+                'data' => $data,
+                'backgroundColor' => $colors[$index % count($colors)],
+                'borderColor' => $colors[$index % count($colors)],
+                'borderWidth' => 1
+            ];
+        }
+
+        return $datasets;
     }
 
 
