@@ -95,6 +95,7 @@ jQuery(document).ready(function($) {
                 <div class="answer">
                     <input type="text" name="answer_text" placeholder="Odpowiedź" required>
                     <select name="answer_action">
+                        <option value="finnish">Zakończ ankietę</option>
                         <option value="next_question">Przejdź do pytania</option>
                         <option value="redirect">Przekieruj</option>
                         <option value="message">Pokaż komunikat</option>
@@ -182,6 +183,7 @@ function createAnswerHTML() {
         <div class="answer">
             <input type="text" name="answer_text" placeholder="Odpowiedź" required>
             <select name="answer_action">
+                <option value="finish">Zakończ ankietę</option>
                 <option value="next_question">Przejdź do pytania</option>
                 <option value="redirect">Przekieruj</option>
                 <option value="message">Pokaż komunikat</option>

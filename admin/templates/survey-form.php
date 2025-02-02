@@ -53,6 +53,12 @@ $survey_questions = $survey_id ? get_post_meta($survey_id, 'survey_questions', t
                                                 >
                                                 <select name="answer_action">
                                                     <option
+                                                            value="finish"
+                                                        <?php selected($answer['action'], 'finish'); ?>
+                                                    >
+                                                        Zakończ ankietę
+                                                    </option>
+                                                    <option
                                                             value="next_question"
                                                         <?php selected($answer['action'], 'next_question'); ?>
                                                     >

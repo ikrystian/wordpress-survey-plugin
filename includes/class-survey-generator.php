@@ -1,6 +1,9 @@
 <?php
-class SurveyGenerator {
-    public function __construct() {
+
+class SurveyGenerator
+{
+    public function __construct()
+    {
         add_action('init', [$this, 'register_survey_post_type']);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_frontend_scripts']);
 
@@ -22,7 +25,8 @@ class SurveyGenerator {
         });
 
 
-        function get_surveys() {
+        function get_surveys()
+        {
             // Fetch surveys from the database or any other source
             $surveys = array(
                 array('id' => 1, 'title' => 'Customer Satisfaction Survey'),
@@ -34,14 +38,14 @@ class SurveyGenerator {
 
     }
 
-
-    public function record_click() {
+    public function record_click()
+    {
         $survey_id = intval($_POST['survey_id']);
         $question_id = intval($_POST['question_id']);
         $answer_text = sanitize_text_field($_POST['answer_text']);
         $user_ip = $_SERVER['REMOTE_ADDR']; // Zbieranie IP użytkownika
         $user_agent = $_SERVER['HTTP_USER_AGENT']; // Zbieranie User-Agent
-        $user_id =sanitize_text_field($_POST['user_id'] ); // Odbieranie identyfikatora użytkownika
+        $user_id = sanitize_text_field($_POST['user_id']); // Odbieranie identyfikatora użytkownika
 
 
         // Zapisz dane do bazy danych
@@ -56,15 +60,19 @@ class SurveyGenerator {
         ];
 
         global $wpdb;
-        $wpdb->insert('wp_survey_clicks', $click_data); // Upewnij się, że tabela istnieje
+        $results = $wpdb->get_results($wpdb->prepare("SELECT * FROM wp_survey_clicks WHERE survey_id = %s AND question_id = %s", $survey_id, $question_id));
+        if (!$results) {
+            $wpdb->insert('wp_survey_clicks', $click_data); // Upewnij się, że tabela istnieje
+        } else {
+            $wpdb->update('wp_survey_clicks', $click_data, ['id' => $results[0]->id]); // Upewnij się, że tabela istnieje
 
-        wp_send_json_success([
-            'data' => $click_data
-        ]);
+        }
+        wp_send_json_success();
     }
 
 
-    public function register_survey_post_type() {
+    public function register_survey_post_type()
+    {
         register_post_type('survey', [
             'labels' => [
                 'name' => 'Ankiety',
@@ -76,12 +84,13 @@ class SurveyGenerator {
             'supports' => ['title']
         ]);
 
-        register_block_type( __DIR__ . '../blocks/survey/build' );
+        register_block_type(__DIR__ . '../blocks/survey/build');
 
     }
 
 
-    public function enqueue_frontend_scripts() {
+    public function enqueue_frontend_scripts()
+    {
         wp_enqueue_script('survey-script',
             plugin_dir_url(__FILE__) . '../assets/js/survey-script.js',
             ['jquery'],
