@@ -8,6 +8,10 @@ jQuery(document).ready(function($) {
             questionIndex++;
         });
 
+        $('.question-header').on('click', function() {
+            $(this).siblings('.answers-container').slideToggle();
+        })
+
         $('#questions-container').on('click', '.remove-question', function() {
             $(this).closest('.survey-question').remove();
         });
@@ -153,13 +157,13 @@ jQuery(document).ready(function($) {
 
     // Sekcja Frontend
     if ($('.survey-container').length) {
-        let currentQuestionIndex = 0;
+        let currentQuestionIndex = localStorage.getItem('currentQuestionIndex') || $('.survey-question').first().data('question-index'); // Odczytanie indeksu z localStorage
         const $questions = $('.survey-question');
         const $surveyContainer = $('.survey-container');
-
+        console.log();
+        showNextQuestion(parseInt(currentQuestionIndex) + 1)
         // Pokaż pierwsze pytanie
-        $questions.first().addClass('active');
-
+        $questions.find(currentQuestionIndex).addClass('active');
         // Obsługa odpowiedzi
         $('.survey-answer').on('click', function() {
             const action = $(this).data('action');

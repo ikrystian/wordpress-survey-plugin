@@ -11,7 +11,9 @@
 
 .question-header {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
+    gap: 1.2rem;
+    align-items: center;
     margin-bottom: 10px;
 }
 
@@ -43,4 +45,8 @@
     &:focus {
         background-color: buttonface;
     }
+}
+
+.answers-container {
+    display: none;
 }

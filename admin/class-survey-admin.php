@@ -174,7 +174,8 @@ class SurveyAdminPage
         $chartData = [];
         $chartLabels = [];
         echo '<table style="width: 100%;">';
-        echo '<tr><th>ID Pytania</th><th>Odpowiedź</th><th>IP Użytkownika</th><th>User Agent</th><th>Czas</th><th>user id</th></tr>';
+//        echo '<tr><th>ID Pytania</th><th>Odpowiedź</th><th>IP Użytkownika</th><th>User Agent</th><th>Czas</th><th>user id</th></tr>';
+        echo '<tr><th>ID Pytania</th><th>Odpowiedź</th><th>IP Użytkownika</th><th>Czas</th><th>user id</th></tr>';
 
         foreach ($questions as $index => $question) {
             // Pobierz kliknięcia dla danego pytania
@@ -186,7 +187,7 @@ class SurveyAdminPage
                 echo '<td>' . esc_html($index) . '</td>';
                 echo '<td>' . esc_html($click->answer_text) . '</td>';
                 echo '<td>' . esc_html($click->user_ip) . '</td>';
-                echo '<td>' . esc_html($click->user_agent) . '</td>';
+//                echo '<td>' . esc_html($click->user_agent) . '</td>';
                 echo '<td>' . esc_html($click->timestamp) . '</td>';
                 echo '<td>' . esc_html($click->user_id) . '</td>';
 
@@ -214,7 +215,7 @@ class SurveyAdminPage
         }
 
         // Wyświetlenie wykresu
-        echo '<canvas id="surveyChart" width="400" height="200"></canvas>';
+        // echo '<canvas id="surveyChart" width="400" height="200"></canvas>';
         echo '<script>
         var ctx = document.getElementById("surveyChart").getContext("2d");
         var chart = new Chart(ctx, {

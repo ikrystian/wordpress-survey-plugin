@@ -40,10 +40,20 @@ class SurveyShortcode {
             jQuery(document).ready(function($) {
 
                 var userId = '<?php echo esc_js($user_id); ?>'; // Przekazanie identyfikatora użytkownika
-                console.log(userId);
-
+                const d = localStorage.getItem('currentQuestionIndex');
+                if(d) {
+                    console.log(d);
+                }
                 $('.survey-answer').on('click', function() {
-                    var questionId = $(this).data('question-id');
+                    localStorage.setItem('currentQuestionIndex',  $(this).data('question-id'));
+                    var questionId
+                    if(localStorage.getItem('currentQuestionIndex')) {
+                        questionId = localStorage.getItem('currentQuestionIndex');
+                        console.log(questionId);
+                    } else {
+                        questionId = $(this).data('question-id');
+                        console.log(questionId);
+                    }
                     var answerText = $(this).text();
                     var surveyId = <?php echo $survey_id; ?>;
                     var userId = '<?php echo esc_js($user_id); ?>'; // Przekazanie identyfikatora użytkownika
@@ -55,7 +65,7 @@ class SurveyShortcode {
                         question_id: questionId,
                         answer_text: answerText,
                         user_id: userId
-                    }, (e) => console.log(e));
+                    }, {});
                 });
             });
         </script>
