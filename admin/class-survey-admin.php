@@ -163,93 +163,39 @@ class SurveyAdminPage
 
     private function display_survey_details($survey_id) {
         global $wpdb;
-        $table_name = $wpdb->prefix . 'survey_clicks';
+        $user_progress = $wpdb->get_results($wpdb->prepare(
+            "SELECT user_id, progress FROM {$wpdb->prefix}survey_user_progress WHERE survey_id = %d",
+            $survey_id
+        ));
 
-        // Pobierz pytania dla danej ankiety
-        $questions = get_post_meta($survey_id, 'survey_questions', true);
+        if ($user_progress) {
+            echo '<h2>Statystyki Ankiety</h2>';
+            echo '<table class="wp-list-table widefat fixed striped">';
+            echo '<thead>
+                <tr>
+                    <th>ID Użytkownika</th>
+                    <th>Odpowiedzi</th>
+                </tr>
+              </thead>
+              <tbody>';
 
-        echo '<h2>Szczegóły Ankiety: ' . esc_html(get_the_title($survey_id)) . '</h2>';
-
-        // Przygotowanie danych do wykresu
-        $chartData = [];
-        $chartLabels = [];
-        echo '<table style="width: 100%;">';
-//        echo '<tr><th>ID Pytania</th><th>Odpowiedź</th><th>IP Użytkownika</th><th>User Agent</th><th>Czas</th><th>user id</th></tr>';
-        echo '<tr><th>ID Pytania</th><th>Odpowiedź</th><th>IP Użytkownika</th><th>User Agent</th><th>Czas</th><th>user id</th></tr>';
-
-        foreach ($questions as $index => $question) {
-            // Pobierz kliknięcia dla danego pytania
-            $clicks = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE survey_id = %d", $survey_id));
-            print_r($clicks);
-
-            foreach ($clicks as $click) {
+            foreach ($user_progress as $progress) {
+                $responses = unserialize($progress->progress);
                 echo '<tr>';
-                echo '<td>' . esc_html($index) . '</td>';
-                echo '<td>' . esc_html($click->answer_text) . '</td>';
-                echo '<td>' . esc_html($click->user_ip) . '</td>';
-//                echo '<td>' . esc_html($click->user_agent) . '</td>';
-                echo '<td>' . esc_html($click->timestamp) . '</td>';
-                echo '<td>' . esc_html($click->user_id) . '</td>';
-
+                echo '<td>' . esc_html($progress->user_id) . '</td>';
+                echo '<td>';
+                // Display each response
+                foreach ($responses['results'] as $response) {
+                    echo 'Pytanie ' . esc_html($response['questionId']) . ': ' . esc_html($response['answerText']) . '<br>';
+                }
+                echo '</td>';
                 echo '</tr>';
             }
+
+            echo '</tbody></table>';
+        } else {
+            echo '<p>Brak danych statystycznych dla tej ankiety.</p>';
         }
-        echo '</table>';
-
-        foreach ($questions as $index => $question) {
-            // Pobierz kliknięcia dla danego pytania
-            $clicks = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name WHERE survey_id = %d", $survey_id, $index));
-
-            // Zlicz odpowiedzi
-            $answerCounts = [];
-            foreach ($clicks as $click) {
-                if (!isset($answerCounts[$click->answer_text])) {
-                    $answerCounts[$click->answer_text] = 0;
-                }
-                $answerCounts[$click->answer_text]++;
-            }
-
-            // Dodaj dane do wykresu
-            $chartLabels[] = esc_html($question['question']);
-            $chartData[] = array_values($answerCounts);
-        }
-
-        // Wyświetlenie wykresu
-        // echo '<canvas id="surveyChart" width="400" height="200"></canvas>';
-        echo '<script>
-        var ctx = document.getElementById("surveyChart").getContext("2d");
-        var chart = new Chart(ctx, {
-            type: "bar",
-            data: {
-                labels: ' . json_encode($chartLabels) . ',
-                datasets: ' . json_encode($this->prepareChartDatasets($chartData)) . '
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-    </script>';
-    }
-
-    private function prepareChartDatasets($chartData) {
-        $datasets = [];
-        $colors = ['rgba(92, 27, 94, 1)', 'rgba(255, 255, 255, 1)', '#fb1', '#dadada'];
-
-        foreach ($chartData as $index => $data) {
-            $datasets[] = [
-                'label' => 'Pytanie ' . ($index + 1),
-                'data' => $data,
-                'backgroundColor' => $colors[$index % count($colors)],
-                'borderColor' => $colors[$index % count($colors)],
-                'borderWidth' => 1
-            ];
-        }
-
-        return $datasets;
     }
 
 

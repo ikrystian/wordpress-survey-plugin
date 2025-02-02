@@ -44,7 +44,6 @@ class SurveyGenerator
 
         // Check if the user progress already exists
         $existing_progress = $wpdb->get_var($wpdb->prepare("SELECT progress FROM $table_name WHERE user_id = %s AND survey_id = %d", $user_id, $survey_id));
-
         // Serialize the progress data
         $serialized_data = serialize($progress_data);
 
@@ -63,9 +62,11 @@ class SurveyGenerator
         $user_id = sanitize_text_field($_POST['user_id']);
         $survey_id = intval($_POST['survey_id']);
         $progress_data = $_POST['progress_data']; // This should be an array
-
-        $data = $this->save_user_progress($user_id, $survey_id, $progress_data);
-        wp_send_json_success();
+        $user_agent = $_SERVER['HTTP_USER_AGENT'];
+        $user_ip = $_SERVER['REMOTE_ADDR'];
+        $meta =  ['ip' => $user_ip, 'agent' => $user_agent, 'time' => date('Y-m-d H:i:s')];
+        $results = $this->save_user_progress($user_id, $survey_id, $progress_data);
+        return wp_send_json_success($results);
     }
 
     public function record_click()
@@ -76,27 +77,8 @@ class SurveyGenerator
         $user_agent = $_SERVER['HTTP_USER_AGENT']; // Zbieranie User-Agent
         $user_id = sanitize_text_field($_POST['user_id']); // Odbieranie identyfikatora użytkownika
 
-        $this->save_user_progress($user_id, $survey_id, $answer_text );
+        $this->save_user_progress($user_id, $survey_id, $answer_text, );
 
-        // Zapisz dane do bazy danych
-        $click_data = [
-            'survey_id' => $survey_id,
-            'answer_text' => $answer_text,
-            'user_ip' => $user_ip,
-            'user_id' => $user_id, // Zapisz identyfikator użytkownika
-            'user_agent' => $user_agent,
-            'timestamp' => current_time('mysql'),
-        ];
-
-        global $wpdb;
-        $results = $wpdb->get_results($wpdb->prepare("SELECT * FROM wp_survey_clicks WHERE survey_id = %s", $survey_id));
-        if (!$results) {
-            $wpdb->insert('wp_survey_clicks', $click_data); // Upewnij się, że tabela istnieje
-        } else {
-            $wpdb->update('wp_survey_clicks', $click_data, ['id' => $results[0]->id]); // Upewnij się, że tabela istnieje
-
-        }
-        wp_send_json_success();
     }
 
 
