@@ -4,6 +4,8 @@ class SurveyAdminPage
 {
     public function __construct()
     {
+        add_action('admin_init', [$this, 'handle_survey_deletion']);
+
         add_action('admin_menu', [$this, 'add_survey_menu']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']);
         add_action('wp_ajax_save_survey', [$this, 'save_survey']);
@@ -68,13 +70,34 @@ class SurveyAdminPage
                 plugin_dir_url(__FILE__) . '../assets/css/admin-style.css'
             );
 
-            wp_enqueue_style('survey-styles', plugin_dir_url(__FILE__) . 'assets/css/survey-styles.css');
+//            wp_enqueue_style('survey-styles', plugin_dir_url(__FILE__) . 'assets/css/survey-styles.css');
             wp_enqueue_script('survey-script', plugin_dir_url(__FILE__) . 'assets/js/survey-script.js', ['jquery'], '1.0', true);
 
             wp_localize_script('survey-script', 'surveyAjax', [
                 'ajaxurl' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('survey_admin_nonce')
             ]);
+        }
+    }
+
+    public function handle_survey_deletion() {
+        if (isset($_POST['delete_survey_id'])) {
+            $survey_id = intval($_POST['delete_survey_id']);
+
+            // Usuń ankietę
+            wp_delete_post($survey_id, true); // Usuwa post (ankietę) z bazy danych
+
+            // Usuń pytania z metadanych
+            delete_post_meta($survey_id, 'survey_questions');
+
+            // Usuń statystyki kliknięć
+            global $wpdb;
+            $table_name = $wpdb->prefix . 'survey_clicks';
+            $wpdb->delete($table_name, ['survey_id' => $survey_id]);
+
+            // Przekierowanie po usunięciu
+            wp_redirect(admin_url('admin.php?page=survey-generator'));
+            exit;
         }
     }
 

@@ -20,11 +20,10 @@
                 <td>
                     <a href="?page=add-survey&survey_id=<?php echo $survey->ID; ?>"
                        class="button">Edytuj</a>
-                    <button
-                        class="button delete-survey"
-                        data-survey-id="<?php echo $survey->ID; ?>">
-                        Usuń
-                    </button>
+                    <form method="POST" action="">
+                        <input type="hidden" name="delete_survey_id" value="<?php echo $survey->ID; ?>">
+                        <input type="submit" value="Usuń ankietę" onclick="return confirm('Czy na pewno chcesz usunąć tę ankietę?');">
+                    </form>
                 </td>
             </tr>
         <?php endforeach; ?>
