@@ -16,6 +16,15 @@ jQuery(document).ready(function($) {
             const $answersContainer = $(this).siblings('.answers-container');
             const newAnswer = createAnswerHTML();
             $answersContainer.append(newAnswer);
+
+            $.get('http://quiz.local/wp-json/wp/v2/pages', function(data) {
+                $.each(data, function(index, page) {
+                    $('.page-select:not(empty)').append($('<option>', {
+                        value: page.id,
+                        text: page.title.rendered
+                    }));
+                });
+            });
         });
 
         $('#questions-container').on('click', '.remove-answer', function() {
@@ -90,6 +99,7 @@ jQuery(document).ready(function($) {
             `;
         }
 
+
         function createAnswerHTML() {
             return `
                 <div class="answer">
@@ -100,6 +110,7 @@ jQuery(document).ready(function($) {
                         <option value="redirect">Przekieruj</option>
                         <option value="message">Pokaż komunikat</option>
                     </select>
+                    <select name=""  class="page-select"></select>
                     <input 
                         type="text" 
                         name="action_value" 
@@ -188,11 +199,16 @@ function createAnswerHTML() {
                 <option value="redirect">Przekieruj</option>
                 <option value="message">Pokaż komunikat</option>
             </select>
+                                <select name=""  class="page-select"></select>
+
             <input 
                 type="text" 
                 name="action_value" 
                 placeholder="ID pytania/URL/komunikat"
             >
+
+                
+
             <button type="button" class="remove-answer">×</button>
         </div>
     `;

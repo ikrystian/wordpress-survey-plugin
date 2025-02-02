@@ -236,7 +236,7 @@ class SurveyAdminPage
 
     private function prepareChartDatasets($chartData) {
         $datasets = [];
-        $colors = ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)', 'rgba(75, 192, 192, 0.2)'];
+        $colors = ['rgba(92, 27, 94, 1)', 'rgba(255, 255, 255, 1)', '#fb1', '#dadada'];
 
         foreach ($chartData as $index => $data) {
             $datasets[] = [
@@ -253,3 +253,27 @@ class SurveyAdminPage
 
 
 }
+
+function render_page_select() {
+    // Użyj WordPress REST API do pobrania stron
+    $response = wp_remote_get(rest_url('wp/v2/pages'));
+    print_r( $response);
+    if (is_wp_error($response)) {
+        return '<p>Nie można pobrać stron.</p>';
+    }
+
+    $pages = json_decode(wp_remote_retrieve_body($response), true);
+
+    // Tworzenie pola select
+    $output = '<select id="page-select" name="page_id">';
+    $output .= '<option value="">Wybierz stronę</option>'; // Opcja domyślna
+
+    foreach ($pages as $page) {
+        $output .= '<option value="' . esc_attr($page['id']) . '">' . esc_html($page['title']['rendered']) . '</option>';
+    }
+
+    $output .= '</select>';
+
+    return $output;
+}
+
