@@ -21,7 +21,7 @@ class SurveyShortcode
         // Check if the user progress already exists
         $existing_progress = $wpdb->get_var($wpdb->prepare("SELECT progress FROM $table_name WHERE user_id = %s AND survey_id = %d", 0, $survey_id));
         if ($existing_progress) :
-            echo "<h1>Nie mozesz drugi raz wypełnić ankiety <strong>chuju</strong></h1>";
+            echo "<h1>Nie mozesz drugi raz wypełnić ankiety</h1>";
         else   :
             ?>
             <div class="survey-container" data-survey-id="<?php echo $survey_id; ?>">
